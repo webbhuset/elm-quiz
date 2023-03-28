@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Elm-Quiz</title>
+    <script src="/build/Player.elm.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1 user-scalable=no"/>
+    <link rel="stylesheet" href="/build/common.css" />
+    <link rel="stylesheet" href="/build/player.css" />
+    <style>
+        html, body {
+            margin: 0;
+            height: 100%;
+        }
+        .player-screen {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+    <script>
+        const player = Elm.Build.Player.init({
+            node: document.getElementById('app'),
+        });
+
+
+        for (let name in player.ports) {
+            let port = player.ports[name];
+
+            if (name.match(/^send_/)) {
+                let targetName = name.replace(/send_/, '');
+                port.subscribe(function(msg) {
+                    let payload = {
+                        tag: targetName,
+                        msg: msg
+                    };
+
+                    toGameServer.send(JSON.stringify(payload))
+                });
+            }
+        }
+
+        if (window.location.protocol == 'https:') {
+            var url = 'wss://' + window.location.host + window.location.pathname;
+        } else {
+            var url = 'ws://' + window.location.host + window.location.pathname;
+        }
+
+        const toGameServer = new WebSocket(url)
+
+        toGameServer.onmessage = function(event) {
+            let payload = JSON.parse(event.data);
+
+            let name = 'recv_' + payload.tag;
+            let port = player.ports[name];
+            port.send(payload.msg);
+        }
+
+        toGameServer.addEventListener('error', function(event) {
+            console.log(event);
+            player.ports.socket_onError.send("");
+        });
+        toGameServer.addEventListener('close', function(event) {
+            player.ports.socket_onClose.send("");
+        });
+    </script>
+</body>
+</html>
+

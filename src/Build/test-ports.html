@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Elm-Quiz</title>
+    <script src="/build/Server.elm.js"></script>
+    <script src="/build/Player.elm.js"></script>
+    <script src="/build/Host.elm.js"></script>
+    <link rel="stylesheet" href="/build/common.css" />
+    <link rel="stylesheet" href="/build/player.css" />
+    <link rel="stylesheet" href="/build/host.css" />
+    <link rel="stylesheet" href="/build/dev.css" />
+</head>
+<body>
+    <div id="test-players" class="dev-player-grid"></div>
+    <div class="dev-game">
+        <div id="host"></div>
+    </div>
+    <script>
+        const player = [];
+        const players = document.getElementById('test-players');
+        const server = Elm.Build.Server.init({});
+        const host = Elm.Build.Host.init({
+            node: document.getElementById('host'),
+            flags: {
+                url: window.location.href,
+            }
+        });
+
+        connectHostPorts(server, host);
+
+        for (let n in Array.from(Array(4).keys())) {
+            let id = 'player-' + n;
+            let node = document.createElement('div');
+            players.appendChild(node);
+            player[n] = Elm.Build.Player.init({
+                node: node
+            });
+
+            connectPlayerPorts(server, id, player[n]);
+        }
+
+        function addId(id, port) {
+            return function(msg) {
+                port.send({ id: id, msg: msg});
+            }
+        }
+
+        function ifMatches(id, port) {
+            return function(msg) {
+                if (msg.id == id) {
+                    port.send(msg.msg);
+                }
+            }
+        }
+
+        function connectPlayerPorts(server, id, app) {
+            for (let name in app.ports) {
+                let appPort = app.ports[name];
+
+                if (name.match(/^send_/)) {
+                    let targetName = name.replace(/send_/, 'recv_');
+                    let serverPort = server.ports[targetName];
+                    appPort.subscribe(addId(id, serverPort));
+                }
+                if (name.match(/^recv_/)) {
+                    let targetName = name.replace(/recv_/, 'send_');
+                    let serverPort = server.ports[targetName];
+                    serverPort.subscribe(ifMatches(id, appPort));
+                }
+            }
+        }
+
+        function connectHostPorts(server, app) {
+            for (let name in app.ports) {
+                let appPort = app.ports[name];
+
+                if (name.match(/^send_/)) {
+                    let targetName = name.replace(/send_/, 'recv_');
+                    let serverPort = server.ports[targetName];
+                    appPort.subscribe(serverPort.send);
+                }
+                if (name.match(/^recv_/)) {
+                    let targetName = name.replace(/recv_/, 'send_');
+                    let serverPort = server.ports[targetName];
+                    serverPort.subscribe(appPort.send);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+

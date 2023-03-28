@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Host</title>
+    <script src="/build/Host.elm.js"></script>
+    <link rel="stylesheet" href="/build/common.css" />
+    <link rel="stylesheet" href="/build/host.css" />
+    <style>
+        html, body {
+            margin: 0;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="host"></div>
+    <script>
+        const gameHost = Elm.Build.Host.init({
+            node: document.getElementById('host'),
+            flags: {
+                url: window.location.origin,
+            }
+        });
+
+        for (let name in gameHost.ports) {
+            let port = gameHost.ports[name];
+
+            if (name.match(/^send_/)) {
+                let targetName = name.replace(/send_/, '');
+                port.subscribe(function(msg) {
+                    let payload = {
+                        tag: targetName,
+                        msg: msg
+                    };
+
+                    toGameServer.send(JSON.stringify(payload))
+                });
+            }
+        }
+
+        if (window.location.protocol == 'https:') {
+            var url = 'wss://' + window.location.host + '/host';
+        } else {
+            var url = 'ws://' + window.location.host + '/host';
+        }
+
+        const toGameServer = new WebSocket(url)
+
+        toGameServer.onmessage = function(event) {
+            let payload = JSON.parse(event.data);
+
+            let name = 'recv_' + payload.tag;
+            let port = gameHost.ports[name];
+            port.send(payload.msg);
+        }
+    </script>
+</body>
+</html>
+

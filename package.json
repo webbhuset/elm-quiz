@@ -1,0 +1,11 @@
+{
+  "name": "quiz",
+  "version": "1.0.0",
+  "description": "A simple quiz app",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "websocket": "^1.0.34",
+    "ws": "^8.13.0"
+  }
+}

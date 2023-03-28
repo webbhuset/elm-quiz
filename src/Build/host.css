@@ -1,0 +1,39 @@
+
+
+.question-text {
+    font-size: 1.5em;
+}
+
+.answer-row {
+    outline-color: var(--dark);
+    column-gap: 1em;
+    justify-content: start;
+    align-items: center;
+    border-radius: 1px;
+}
+
+.bar {
+    background: var(--bg);
+    border: solid 1px var(--dark);
+    box-shadow: inset 0 0 10px var(--dark);
+    border-radius: 2px;
+    width: 10%;
+    min-height: 3px;
+    height: 0;
+    font-size: 1.5em;
+}
+.bar-frame-end {
+    transition: height 1s;
+}
+
+
+@keyframes progressbar {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
