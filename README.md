@@ -1,6 +1,8 @@
 # Quiz app build with Elm
 
-You need the [elm compiler](https://guide.elm-lang.org/install/elm.html) installed on your system.
+Build dependencies
+- The [elm compiler](https://guide.elm-lang.org/install/elm.html)
+- [node](https://nodejs.org) and [npm](https://www.npmjs.com)
 
 To build and run:
 ```
