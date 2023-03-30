@@ -8,6 +8,8 @@ const app = express()
 
 const elmApp = Elm.Build.Server.init({});
 
+const serverPort = 8080;
+
 
 app.get('/', function(req, res){
   res.sendFile(path.join(__dirname, 'host.html'));
@@ -19,9 +21,10 @@ app.get('/join/:id', function(req, res){
 
 app.use("/build", express.static(path.resolve(__dirname)));
 
-const webServer = app.listen(8080);
+const webServer = app.listen(serverPort);
 const playerServer = new WebSocket.Server({ noServer: true });
 const hostServer = new WebSocket.Server({ noServer: true });
+console.log('Server listening on http://127.0.0.1:' + serverPort);
 
 var players = {};
 
