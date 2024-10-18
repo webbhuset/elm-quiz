@@ -49,7 +49,7 @@ models =
     , App.Player.ChooseAnswer "" 3
     , App.Player.ChooseAnswer "" 4
     , App.Player.AnswerSelected 1 4
-    , App.Player.Error "Some error message"
+    , App.Player.DisplayError "Some error message"
     , App.Player.FinishedAt 1
     , App.Player.FinishedAt 2
     , App.Player.FinishedAt 3
